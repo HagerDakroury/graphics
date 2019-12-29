@@ -95,7 +95,7 @@ boatmtlLoader.load("./models/boat/Cruiser_2012.mtl" , function(materialss){
         mesh.scale.set(0.1,0.1,0.1);
         mesh.position.set( -20 , -10 , 10);
         scene.add(mesh);
-        //requestAnimationFrame(moveboat.bind(moveboat,mesh));
+        requestAnimationFrame(moveboat.bind(moveboat,mesh));
         
     })
 });
@@ -196,11 +196,12 @@ var loadFlash=function(){
   
 //random boat movement
 
-var updateBoat=function(){
-    boat.position.x-=0.02;
-    boat.rotation.y+=0.001;
+function moveboat(object){
+    object.position.x -= 0.02;
+    object.rotation.y += 0.001;
 
-}
+    requestAnimationFrame(moveboat.bind(moveboat,object));
+  }
 
 
 
@@ -326,7 +327,6 @@ var updateFlash=function(){
 
 //game logic
 var update=function(){
-    updateBoat();
     if(night){
         updateRain();
         updateBolts();
