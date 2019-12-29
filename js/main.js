@@ -2,7 +2,7 @@
 import { Water } from '../js/Water.js';
 import { Sky } from '../jS/Sky.js';
 
-
+var boatModel;
 var scene=new THREE.Scene( );
 
 //renderer initialization
@@ -13,7 +13,7 @@ document.body.appendChild( renderer.domElement );
 
 
 //camera
-var camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 1, 1000 );
+var camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 1, 10000 );
 camera.position.set( 30, 30, 100 );
 
 //lighting
@@ -61,34 +61,57 @@ var cubeMaterial = [
 var skyBox = new THREE.Mesh(cubeGeometry , cubeMaterial);
 scene.add(skyBox);
 
-/*var sky = new Sky();
 
-var uniforms = sky.material.uniforms;
 
-uniforms[ 'turbidity' ].value = 10;
-uniforms[ 'rayleigh' ].value = 2;
-uniforms[ 'luminance' ].value = 1;
-uniforms[ 'mieCoefficient' ].value = 0.005;
-uniforms[ 'mieDirectionalG' ].value = 0.8;
+//loading the boat 
 
-scene.add(sky)*/
+var boatmtlLoader = new THREE.MTLLoader();
+boatmtlLoader.load("./models/boat/Cruiser_2012.mtl" , function(materialss){
+    materialss.preload();
+    var boatobjloader = new THREE.OBJLoader();
+    boatobjloader.setMaterials(materialss);
+    boatobjloader.load("./models/boat/Cruiser 2012.obj" , function(mesh){
+        mesh.traverse(function(node){
+            if(node instanceof THREE.Mesh){
+                node.castShadow = true;
+                node.receiveShadow = true;
+            }
+        })
+        mesh.scale.set(0.1,0.1,0.1);
+        mesh.position.set( -20 , -10 , 10);
+        scene.add(mesh);
+        requestAnimationFrame(moveboat.bind(moveboat,mesh));
+        
+    })
+});
 
-/*function updateSun() {
+//random boat movement
+function moveboat(object){
+    object.position.x -= 0.02;
+    object.rotation.y += 0.001;
+    
+    requestAnimationFrame(moveboat.bind(moveboat,object));
+  }
 
-    var theta = Math.PI * ( parameters.inclination - 0.5 );
-    var phi = 2 * Math.PI * ( parameters.azimuth - 0.5 );
 
-    light.position.x = parameters.distance * Math.cos( phi );
-    light.position.y = parameters.distance * Math.sin( phi ) * Math.sin( theta );
-    light.position.z = parameters.distance * Math.sin( phi ) * Math.cos( theta );
+var islandmtlLoader = new THREE.MTLLoader();
+islandmtlLoader.load("./models/island/Small_Tropical_Island.mtl" , function(materialss){
+    materialss.preload();
+    var islandobjloader = new THREE.OBJLoader();
+    islandobjloader.setMaterials(materialss);
+    islandobjloader.load("./models/island/Small Tropical Island.obj" , function(mesh){
+        mesh.traverse(function(node){
+            if(node instanceof THREE.Mesh){
+                node.castShadow = true;
+                node.receiveShadow = true;
+            }
+        })
+        mesh.scale.set(0.1,0.1,0.1);
+        mesh.position.set( -10 , -2 , 55);
+        scene.add(mesh);        
+    })
+});
 
-    sky.material.uniforms[ 'sunPosition' ].value = light.position.copy( light.position );
-    water.material.uniforms[ 'sunDirection' ].value.copy( light.position ).normalize();
-
-    cubeCamera.update( renderer, sky );
-
-}
-updateSun();*/
 
 //controls
 var controls = new THREE.OrbitControls( camera, renderer.domElement );
@@ -111,6 +134,8 @@ camera.updateProjectionMatrix();
 
 //game logic
 var update=function(){
+
+
     //rotate
     //cube.rotation.x+=0.01;
     //cube.rotation.y+=0.005;
